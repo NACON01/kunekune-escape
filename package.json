@@ -6,10 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "test": "vitest run"
+    "test": "vitest run",
+    "deploy": "vite build && gh-pages -d dist"
   },
   "devDependencies": {
     "@vitejs/plugin-legacy": "^7.0.0",
+    "gh-pages": "^6.3.0",
     "typescript": "^5.8.3",
     "vite": "^7.0.4",
     "vitest": "^3.2.4"

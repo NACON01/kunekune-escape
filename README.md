@@ -19,3 +19,14 @@ npm run dev -- --host
 npm run build
 npx vitest run
 ```
+
+## 公開URL
+
+https://NACON01.github.io/kunekune-escape/
+
+## GitHub Pagesへのデプロイ
+
+```bash
+npm install
+npm run deploy
+```
