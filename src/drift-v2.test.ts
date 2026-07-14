@@ -78,21 +78,54 @@ describe("driftV2", () => {
     expect(ahead.rotation).toBe(0);
   });
 
-  it("returns to drifting after 1.5 seconds without a step and can arrive", () => {
+  it("continues easing between steps and reaches the fitting position in 0.5 seconds", () => {
     const walking = updateDriftV2(createDriftV2State(0), {
+      relativeAngle: 0,
+      deltaSeconds: 0,
+      stepDetected: true,
+      ...viewport,
+    });
+    const betweenSteps = updateDriftV2(walking, {
+      relativeAngle: 0,
+      deltaSeconds: 0.1,
+      ...viewport,
+    });
+    const nextStep = updateDriftV2(betweenSteps, {
       relativeAngle: 0,
       deltaSeconds: 0.1,
       stepDetected: true,
       ...viewport,
     });
-    const stopped = updateDriftV2(walking, {
+    const completed = updateDriftV2(nextStep, {
       relativeAngle: 0,
-      deltaSeconds: 0.1,
+      deltaSeconds: 0.3,
+      stepDetected: true,
       ...viewport,
     });
-    const drifting = updateDriftV2(stopped, {
+
+    expect(betweenSteps.status).toBe("walking");
+    expect(betweenSteps.walkingSeconds).toBeCloseTo(0.1);
+    expect(nextStep.noStepSeconds).toBe(0);
+    expect(nextStep.walkingSeconds).toBeCloseTo(0.2);
+    expect(completed.offset).toBe(200);
+    expect(completed.offsetY).toBe(-200);
+  });
+
+  it("returns to drifting after 1.5 seconds without a step and keeps the offset frozen", () => {
+    const walking = updateDriftV2(createDriftV2State(0), {
       relativeAngle: 0,
-      deltaSeconds: 1.5,
+      deltaSeconds: 0,
+      stepDetected: true,
+      ...viewport,
+    });
+    const eased = updateDriftV2(walking, {
+      relativeAngle: 0,
+      deltaSeconds: 0.2,
+      ...viewport,
+    });
+    const drifting = updateDriftV2(eased, {
+      relativeAngle: 0,
+      deltaSeconds: 1.3,
       ...viewport,
     });
     const arrived = updateDriftV2(drifting, {
@@ -102,8 +135,9 @@ describe("driftV2", () => {
       ...viewport,
     });
 
-    expect(stopped.status).toBe("stopped");
+    expect(eased.status).toBe("walking");
     expect(drifting.status).toBe("drifting");
+    expect(drifting.offset).toBeCloseTo(eased.offset);
     expect(arrived).toMatchObject({ status: "arrived", offset: 0, arrived: true, rotation: 0 });
   });
 });

@@ -184,17 +184,22 @@ export function updateDriftV2(state: DriftV2State, input: DriftV2Input): DriftV2
   }
 
   const walkingTowardTarget = Boolean(input.stepDetected) && absoluteAngle <= V2_WALKING_ANGLE_DEGREES;
-  if (walkingTowardTarget) {
+  const wasWalking = next.status === "walking";
+  const wasStopped = next.status === "stopped";
+  if (wasWalking) {
+    if (input.stepDetected) {
+      next.noStepSeconds = 0;
+    } else {
+      next.noStepSeconds += deltaSeconds;
+    }
+    if (next.noStepSeconds >= V2_STOPPED_TIMEOUT_SECONDS) {
+      next.status = "drifting";
+    }
+  } else if (walkingTowardTarget) {
     next.status = "walking";
     next.noStepSeconds = 0;
     next.walkingSeconds = 0;
     next.walkingStartOffset = next.offset;
-  } else if (next.status === "walking") {
-    next.status = "stopped";
-    next.noStepSeconds += deltaSeconds;
-    if (next.noStepSeconds >= V2_STOPPED_TIMEOUT_SECONDS) {
-      next.status = "drifting";
-    }
   } else if (next.status === "stopped") {
     next.noStepSeconds += deltaSeconds;
     if (next.noStepSeconds >= V2_STOPPED_TIMEOUT_SECONDS) {
@@ -204,7 +209,8 @@ export function updateDriftV2(state: DriftV2State, input: DriftV2Input): DriftV2
     next.noStepSeconds += deltaSeconds;
   }
 
-  if (next.status === "drifting") {
+  const pausedStateTimedOut = (wasWalking || wasStopped) && next.status === "drifting";
+  if (next.status === "drifting" && !pausedStateTimedOut) {
     const limit = getAxisLimit(next.axisAngle, input.viewportWidth, input.viewportHeight, MAX_OUT_OF_VIEW_RATIO);
     next = withOffset(next, clamp(next.offset + deltaSeconds * SPEED_PX_PER_SECOND, 0, limit));
   } else if (next.status === "walking") {
