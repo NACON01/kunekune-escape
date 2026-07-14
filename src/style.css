@@ -53,6 +53,7 @@ input {
 .app-header {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 12px;
 }
@@ -84,6 +85,85 @@ h1 {
 .start-button--active {
   color: #ffffff;
   background: #ef4444;
+}
+
+.mode-tabs {
+  display: flex;
+  order: 3;
+  width: 100%;
+  gap: 6px;
+}
+
+.mode-tab,
+.secondary-button {
+  min-height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  padding: 0 12px;
+  color: #e5e7eb;
+  background: rgba(15, 23, 42, 0.85);
+  font-weight: 700;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mode-tab {
+  flex: 1;
+}
+
+.mode-tab--active,
+.secondary-button:hover {
+  color: #111827;
+  background: #facc15;
+}
+
+.sensor-panel {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.7);
+}
+
+.sensor-panel[hidden] {
+  display: none;
+}
+
+.sensor-panel h2,
+.sensor-panel p {
+  margin: 0;
+}
+
+.sensor-panel h2 {
+  font-size: 1rem;
+}
+
+.sensor-instructions,
+.sensor-status {
+  color: #cbd5e1;
+  font-size: 0.88rem;
+}
+
+.sensor-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sensor-controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.sensor-start-button {
+  padding: 0 14px;
+}
+
+.sensor-error,
+.form-error {
+  color: #fecaca;
+  font-size: 0.82rem;
 }
 
 .player-section {
@@ -188,6 +268,30 @@ h1 {
   display: grid;
   gap: 14px;
   padding: 0 14px 14px;
+}
+
+.debug-pseudo-controls[hidden] {
+  display: none;
+}
+
+.sensor-readout {
+  display: grid;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.readout-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #cbd5e1;
+  font-size: 0.88rem;
+}
+
+.readout-row output {
+  color: #facc15;
+  font-weight: 800;
 }
 
 .range-control {

@@ -20,18 +20,21 @@ export function createDebugPanel(options: DebugPanelOptions) {
   details.open = true;
 
   const summary = document.createElement("summary");
-  summary.textContent = "擬似モード";
+  summary.textContent = "デバッグパネル";
 
   const body = document.createElement("div");
   body.className = "debug-body";
 
+  const pseudoBody = document.createElement("div");
+  pseudoBody.className = "debug-pseudo-controls";
+
   const directionControl = createRangeControl({
-    label: "方向",
+    label: "誘導方向",
     min: 0,
     max: 360,
     step: 1,
     value: state.direction,
-    unit: "度",
+    unit: "°",
     onInput: (value) => {
       state = { ...state, direction: value };
       options.onChange(state);
@@ -51,13 +54,56 @@ export function createDebugPanel(options: DebugPanelOptions) {
     },
   });
 
-  body.append(directionControl.element, distanceControl.element);
+  pseudoBody.append(directionControl.element, distanceControl.element);
+
+  const sensorReadout = document.createElement("div");
+  sensorReadout.className = "sensor-readout";
+  const headingOutput = document.createElement("output");
+  const stepsOutput = document.createElement("output");
+  const segmentsOutput = document.createElement("output");
+  const errorOutput = document.createElement("p");
+  errorOutput.className = "sensor-error";
+
+  appendReadoutRow(sensorReadout, "現在方位", headingOutput);
+  appendReadoutRow(sensorReadout, "累計歩数", stepsOutput);
+  appendReadoutRow(sensorReadout, "記録区間数", segmentsOutput);
+  sensorReadout.append(errorOutput);
+  setSensorReadings(null, 0, 0, "");
+
+  body.append(pseudoBody, sensorReadout);
   details.append(summary, body);
 
   return {
     element: details,
     getState: () => state,
+    setMode(mode: "pseudo" | "sensor"): void {
+      pseudoBody.hidden = mode !== "pseudo";
+    },
+    setSensorReadings(heading: number | null, steps: number, segments: number, error: string): void {
+      setSensorReadings(heading, steps, segments, error);
+    },
   };
+
+  function setSensorReadings(
+    heading: number | null,
+    steps: number,
+    segments: number,
+    error: string,
+  ): void {
+    headingOutput.textContent = heading === null ? "—" : `${heading.toFixed(1)}°`;
+    stepsOutput.textContent = `${steps}歩`;
+    segmentsOutput.textContent = `${segments}区間`;
+    errorOutput.textContent = error;
+  }
+}
+
+function appendReadoutRow(container: HTMLDivElement, label: string, output: HTMLOutputElement): void {
+  const row = document.createElement("div");
+  row.className = "readout-row";
+  const labelElement = document.createElement("span");
+  labelElement.textContent = label;
+  row.append(labelElement, output);
+  container.append(row);
 }
 
 function createRangeControl(options: {
